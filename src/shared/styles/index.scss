@@ -1,0 +1,19 @@
+:root {
+  --app-max-width: 1400px;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  background: #0b0c0e;
+  color: #e0e0e0;
+}
+
+.app-shell {
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+}

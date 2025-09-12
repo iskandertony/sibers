@@ -1,0 +1,34 @@
+import { create } from "zustand";
+
+export type Profile = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  avatar: string;
+  city: string;
+  country: string;
+  company: string;
+  isFavorite: boolean;
+};
+
+type SessionState = {
+  profile: Profile | null;
+  setProfile: (p: Profile) => void;
+  clearProfile: () => void;
+};
+
+export const useSessionStore = create<SessionState>((set) => ({
+  profile: null,
+  setProfile: (p) => set({ profile: p }),
+  clearProfile: () => {
+    // Keep this simple: only remove our profile snapshot keys.
+    localStorage.removeItem("app.profile.userJsonId");
+    localStorage.removeItem("app.profile.snapshot");
+    localStorage.removeItem("app.profile.version");
+    localStorage.removeItem("app.lastLoginAt");
+    set({ profile: null });
+    // A simple reload is OK for now; in prod, you'd re-run the init flow.
+    location.reload();
+  }
+}));
