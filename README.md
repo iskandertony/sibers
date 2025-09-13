@@ -5,6 +5,7 @@
 > Comments and docs are short and human-readable.
 
 ## Stack
+
 - React 18, Vite, TypeScript
 - Ant Design 5, SCSS modules
 - Zustand (global store)
@@ -12,6 +13,7 @@
 - Axios, Zod, Dayjs
 
 ## Features
+
 - Auto sign-in: on the first visit, a **random** user from `users.json` is picked, saved to `localStorage`, and shown via toast.
 - Channels: create, list your channels, select one.
 - Messages: real-time via Postgres Changes; optimistic send.
@@ -20,6 +22,7 @@
 > Presence and kicking are feasible next steps — DB and Realtime policies are prepared in `supabase.sql`.
 
 ## Setup
+
 1. Copy `.env.example` to `.env.local` and fill values (or use the ready `.env.local` in this zip you provided to me):
    ```sh
    VITE_SUPABASE_URL=<your URL>
@@ -33,9 +36,11 @@
 3. Open http://localhost:5173
 
 ## Supabase schema & RLS
+
 Apply `supabase.sql` in your Supabase SQL editor. It creates tables and basic RLS policies.
 
 ## Notes
+
 - ESLint and tests are intentionally omitted (as requested). Use **Prettier** and your editor's formatting.
 - The code is structured with a light **FSD** split: `entities`, `features`, `widgets`, `pages`, etc.
 - All UI strings and comments are in English.

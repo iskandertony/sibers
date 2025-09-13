@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 /** Minimal schema from users.json; extend if needed. */
 export const UserSchema = z.object({
@@ -9,12 +9,12 @@ export const UserSchema = z.object({
   avatar: z.string().url(),
   address: z.object({
     city: z.string(),
-    country: z.string()
+    country: z.string(),
   }),
   company: z.object({
-    name: z.string()
+    name: z.string(),
   }),
-  favorite: z.boolean().optional()
-});
+  favorite: z.boolean().optional(),
+})
 
-export type User = z.infer<typeof UserSchema>;
+export type User = z.infer<typeof UserSchema>

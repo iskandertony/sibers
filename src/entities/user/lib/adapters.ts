@@ -1,16 +1,16 @@
-import type { User } from "../model/types";
+import type { User } from '../model/types'
 
 export type UserVM = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  avatar: string;
-  city: string;
-  country: string;
-  company: string;
-  isFavorite: boolean;
-};
+  id: number
+  name: string
+  username: string
+  email: string
+  avatar: string
+  city: string
+  country: string
+  company: string
+  isFavorite: boolean
+}
 
 export function toUserVM(u: User): UserVM {
   return {
@@ -22,6 +22,6 @@ export function toUserVM(u: User): UserVM {
     city: u.address.city,
     country: u.address.country,
     company: u.company.name,
-    isFavorite: !!u.favorite
-  };
+    isFavorite: !!u.favorite,
+  }
 }
