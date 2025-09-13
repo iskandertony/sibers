@@ -1,0 +1,62 @@
+.row {
+  display: flex;
+  margin: 6px 0;
+}
+
+/* my messages → right side */
+.row.own {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.bubble {
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  border: none; /* no border box */
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.own .bubble {
+  background: var(--surface-2);
+}
+
+.header {
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* one row: text + time */
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* wrap text after ~300px; keep time on the same row */
+.text {
+  font-size: 14px;
+  white-space: pre-wrap;
+  max-width: 300px; /* << your requirement */
+  overflow-wrap: anywhere; /* avoid overflow on long words/urls */
+  flex: 0 1 auto; /* allow shrinking so time stays on the line */
+}
+
+.time {
+  color: var(--text-muted);
+  font-size: 0.7em; /* ~1.5x smaller than text */
+  white-space: nowrap; /* never wrap time */
+  flex: 0 0 auto; /* don't shrink time */
+}
+
+@media (max-width: 640px) {
+  .bubble {
+    max-width: 86%;
+  }
+}

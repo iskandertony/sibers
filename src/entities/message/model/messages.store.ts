@@ -1,5 +1,6 @@
+import type { RealtimeChannel } from '@supabase/supabase-js'
 import { create } from 'zustand'
-import type { RealtimeChannel } from "@supabase/supabase-js";
+
 import { supabase } from '@/shared/api/supabase'
 
 export type Message = {
@@ -18,15 +19,15 @@ type MessagesState = {
   sendMessage: (channelId: string, content: string) => Promise<boolean>
 }
 
-const broadcastMap = new Map<string, RealtimeChannel>();
+const broadcastMap = new Map<string, RealtimeChannel>()
 
 function ensureBroadcastChannel(roomId: string): RealtimeChannel {
-  let ch = broadcastMap.get(roomId);
+  let ch = broadcastMap.get(roomId)
   if (!ch) {
-    ch = supabase.channel(`room:${roomId}`, { config: { broadcast: { ack: true } } });
-    broadcastMap.set(roomId, ch);
+    ch = supabase.channel(`room:${roomId}`, { config: { broadcast: { ack: true } } })
+    broadcastMap.set(roomId, ch)
   }
-  return ch;
+  return ch
 }
 
 export const useMessagesStore = create<MessagesState>((set, get) => ({
@@ -46,7 +47,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
   },
 
   /** Subscribe to new messages via Postgres Changes. */
-// Subscribe to new messages via Postgres Changes + Broadcast fallback.
+  // Subscribe to new messages via Postgres Changes + Broadcast fallback.
   subscribeToChannel(channelId) {
     console.log('[realtime] subscribeToChannel ->', channelId)
 
@@ -132,10 +133,10 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
   },
 
   /** Insert a message (optimistic UI). */
-// Insert a message (optimistic UI).
-// Insert a message (optimistic UI + safe replace)
-// Insert a message (optimistic UI) + broadcast after DB insert.
-// We keep dedupe so there are no doubles if both streams deliver.
+  // Insert a message (optimistic UI).
+  // Insert a message (optimistic UI + safe replace)
+  // Insert a message (optimistic UI) + broadcast after DB insert.
+  // We keep dedupe so there are no doubles if both streams deliver.
   async sendMessage(channelId, content) {
     const { data: auth } = await supabase.auth.getUser()
     const uid = auth.user?.id
@@ -185,6 +186,4 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
 
     return true
   },
-
-
 }))

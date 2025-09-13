@@ -1,119 +1,50 @@
 import { useEffect, useState } from 'react'
 
-import { Button, List, Space, Typography, message } from 'antd'
+import { Button, List, Typography, message } from 'antd'
 
+import s from './Sidebar.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
-import { acceptInvite, listMyInvites } from '@/features/invite-user/model/invites.api'
-import { InviteUserModal } from '@/features/invite-user/ui/InviteUserModal'
 
 const { Text } = Typography
 
+/** Left sidebar: my chats + "New chat" CTA with hover outline. */
 export function Sidebar() {
-  const {
-    channels,
-    publicChannels,
-    fetchMyChannels,
-    fetchPublicChannels, // if you removed public earlier, keep only fetchMyChannels
-    createChannel,
-    joinChannel, // or remove joinChannel if not used
-    setActiveChannelId,
-    activeChannelId,
-  } = useChannelsStore()
-
-  const [inviteOpen, setInviteOpen] = useState(false)
-  const [myInvites, setMyInvites] = useState<any[]>([])
+  const { channels, fetchMyChannels, createChannel, setActiveChannelId, activeChannelId } = useChannelsStore()
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    fetchMyChannels().catch(() => message.error('Failed to load my channels'))
-    // fetchPublicChannels(); // if you keep public list
-    listMyInvites()
-      .then(setMyInvites)
-      .catch(() => {})
+    fetchMyChannels().catch(() => message.error('Failed to load my chats'))
   }, [])
 
-  async function handleAccept(inviteId: string, channelId: string) {
-    try {
-      await acceptInvite(inviteId, channelId)
-      message.success('Joined the channel')
-      // Refresh my channels; remove invite from UI
-      await fetchMyChannels()
-      setMyInvites((x) => x.filter((i) => i.id !== inviteId))
-    } catch (e) {
-      message.error('Failed to accept invite')
-    }
-  }
-
   async function handleCreate() {
-    const name = prompt('Channel name')
+    const name = prompt('Chat name')
     if (!name) return
+    setBusy(true)
     const ok = await createChannel(name)
-    message[ok ? 'success' : 'error'](ok ? `Channel "${name}" created` : 'Failed to create channel')
+    setBusy(false)
+    message[ok ? 'success' : 'error'](ok ? `Chat "${name}" created` : 'Failed to create chat')
   }
 
   return (
-    <div style={{ padding: 12 }}>
-      <Button type="primary" block onClick={handleCreate}>
-        New channel
+    <div className={s.wrap}>
+      <Button className={s.newChat} onClick={handleCreate} loading={busy}>
+        New chat
       </Button>
 
-      <Space direction="vertical" style={{ width: '100%', marginTop: 12 }}>
-        <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ color: '#9aa0a6' }}>My channels</Text>
-            {activeChannelId && (
-              <Button size="small" onClick={() => setInviteOpen(true)}>
-                Invite…
-              </Button>
-            )}
-          </div>
-          <List
-            size="small"
-            style={{ marginTop: 6 }}
-            dataSource={channels}
-            locale={{ emptyText: 'No channels yet' }}
-            renderItem={(ch) => (
-              <List.Item
-                style={{
-                  cursor: 'pointer',
-                  background: '#111418',
-                  borderRadius: 8,
-                  marginBottom: 6,
-                  padding: '8px 10px',
-                }}
-                onClick={() => setActiveChannelId(ch.id)}
-              >
-                <Text style={{ color: '#e0e0e0' }}>{ch.name}</Text>
-              </List.Item>
-            )}
-          />
-        </section>
-      </Space>
-
-      <section style={{ marginTop: 16 }}>
-        <Text style={{ color: '#9aa0a6' }}>My invites</Text>
+      <div style={{ marginTop: 12 }}>
+        <Text style={{ color: 'var(--text-muted)' }}>My chats</Text>
         <List
           size="small"
           style={{ marginTop: 6 }}
-          dataSource={myInvites}
-          locale={{ emptyText: 'No invites' }}
-          renderItem={(i) => (
-            <List.Item
-              actions={[
-                <Button size="small" onClick={() => handleAccept(i.id, i.channel_id)}>
-                  Accept
-                </Button>,
-              ]}
-              style={{ background: '#0f1216', borderRadius: 8, marginBottom: 6, padding: '8px 10px' }}
-            >
-              <span style={{ color: '#e0e0e0' }}>Invite to channel • {i.channel_id.slice(0, 8)}…</span>
+          dataSource={channels}
+          locale={{ emptyText: 'No chats yet' }}
+          renderItem={(ch) => (
+            <List.Item className={s.item} onClick={() => setActiveChannelId(ch.id)}>
+              <Text style={{ color: activeChannelId === ch.id ? 'var(--brand)' : 'var(--text)' }}>{ch.name}</Text>
             </List.Item>
           )}
         />
-      </section>
-
-      {activeChannelId && (
-        <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} channelId={activeChannelId} />
-      )}
+      </div>
     </div>
   )
 }

@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Avatar, Button, Input, List, Modal, message } from 'antd'
 
+import { createInvite } from '../model/invites.api'
+
 import { fetchUsers } from '@/entities/user/api/fetchUsers'
 import { type UserVM, toUserVM } from '@/entities/user/lib/adapters'
-
-import { createInvite } from '../model/invites.api'
 
 /** Invite dialog: local search over users.json and send invite on click. */
 export function InviteUserModal({

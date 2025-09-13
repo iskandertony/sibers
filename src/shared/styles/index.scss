@@ -1,15 +1,15 @@
-:root {
-  --app-max-width: 1400px;
-}
+@import './_theme.scss';
 
+/* Global reset-ish */
 html,
 body,
 #root {
   height: 100%;
 }
-
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
   font-family:
     system-ui,
     -apple-system,
@@ -24,11 +24,18 @@ body {
     'Segoe UI Emoji',
     'Segoe UI Symbol',
     sans-serif;
-  background: #0b0c0e;
-  color: #e0e0e0;
 }
 
+/* Layout helpers */
 .app-shell {
-  max-width: var(--app-max-width);
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+/* AntD quick dark tune */
+.ant-layout,
+.ant-layout-header,
+.ant-layout-sider,
+.ant-layout-content {
+  background: var(--bg) !important;
 }

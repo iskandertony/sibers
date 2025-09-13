@@ -1,20 +1,30 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Empty, Flex, Input, List, Typography, message } from 'antd'
+import { Empty, Flex, Input, List, message } from 'antd'
 
+import s from './ChatPage.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
 import { useMessagesStore } from '@/entities/message/model/messages.store'
+import { MessageBubble } from '@/entities/message/ui'
+import { fetchAliasesByAuthIds } from '@/entities/user/api/fetchUsers'
+import { supabase } from '@/shared/api/supabase'
 
-const { Text } = Typography
-
-/** Main chat area: message list + input. */
 export function ChatPage() {
-  const activeChannelId = useChannelsStore((s) => s.activeChannelId)
-  const activeChannel = useChannelsStore((s) => s.channels.find((c) => c.id === s.activeChannelId))
   const { messages, subscribeToChannel, loadHistory, sendMessage } = useMessagesStore()
+  const { activeChannelId, channels } = useChannelsStore()
+  const activeChannel = channels.find((c) => c.id === activeChannelId)
+
   const [input, setInput] = useState('')
+  const [aliasMap, setAliasMap] = useState<Map<string, string>>(new Map())
+  const [myUid, setMyUid] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
 
+  // who am I?
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setMyUid(data.user?.id ?? null))
+  }, [])
+
+  // load history + subscribe
   useEffect(() => {
     if (!activeChannelId) return
     loadHistory(activeChannelId).catch(() => message.error('Failed to load history'))
@@ -22,10 +32,19 @@ export function ChatPage() {
     return () => unsub?.()
   }, [activeChannelId])
 
+  // scroll down on updates
   useEffect(() => {
-    // scroll to bottom on updates
     listRef.current?.scrollTo({ top: 999999, behavior: 'smooth' })
   }, [messages.length, activeChannelId])
+
+  // load author names for current messages
+  useEffect(() => {
+    if (messages.length === 0) return
+    const ids = messages.map((m) => m.author_id)
+    fetchAliasesByAuthIds(ids)
+      .then(setAliasMap)
+      .catch(() => {})
+  }, [messages])
 
   async function handleSend() {
     const text = input.trim()
@@ -35,36 +54,38 @@ export function ChatPage() {
     if (!ok) message.error('Failed to send')
   }
 
+  const data = useMemo(() => messages, [messages])
+
   if (!activeChannelId) {
     return (
       <Flex align="center" justify="center" style={{ height: '100%' }}>
-        <Empty description="Select or create a channel" />
+        <Empty description="Select or create a chat" />
       </Flex>
     )
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateRows: '1fr auto', height: 'calc(100vh - 64px)' }}>
-      <div ref={listRef} style={{ overflow: 'auto', padding: '12px 16px' }}>
-        <Text style={{ color: '#9aa0a6' }}>#{activeChannel?.name}</Text>
+    <div className={s.wrap}>
+      <div ref={listRef} className={s.list}>
+        <div className={s.header}>#{activeChannel?.name}</div>
+
         <List
-          dataSource={messages}
-          renderItem={(m) => (
-            <List.Item style={{ border: 0, padding: '6px 0' }}>
-              <div>
-                <Text style={{ color: 'black' }}>[{new Date(m.created_at).toLocaleTimeString()}]</Text>{' '}
-                <Text style={{ color: 'black' }}>{m.content}</Text>
-                {m.optimistic && (
-                  <Text type="secondary" style={{ marginLeft: 8 }}>
-                    (sending…)
-                  </Text>
-                )}
-              </div>
-            </List.Item>
-          )}
+          dataSource={data}
+          renderItem={(m) => {
+            const isOwn = myUid != null && myUid === m.author_id
+            const authorName = isOwn ? 'You' : (aliasMap.get(m.author_id) ?? 'Member')
+            const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+            return (
+              <List.Item style={{ border: 0, padding: 0 }}>
+                <MessageBubble authorName={authorName} content={m.content} time={time} isOwn={isOwn} />
+              </List.Item>
+            )
+          }}
         />
       </div>
-      <div style={{ padding: 12, background: '#0b0c0e', borderTop: '1px solid #111' }}>
+
+      <div className={s.input}>
         <Input.Search
           placeholder="Type a message and press Enter"
           value={input}

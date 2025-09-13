@@ -14,7 +14,7 @@ export function App() {
   const setProfile = useSessionStore((s) => s.setProfile)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       const result = await ensureIdentity()
       setProfile(result.profile)
       if (result.justSignedIn) {

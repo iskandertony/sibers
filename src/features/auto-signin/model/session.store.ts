@@ -28,7 +28,6 @@ export const useSessionStore = create<SessionState>((set) => ({
     localStorage.removeItem('app.lastLoginAt')
     localStorage.clear()
     set({ profile: null })
-    // A simple reload is OK for now; in prod, you'd re-run the init flow.
     location.reload()
   },
 }))
