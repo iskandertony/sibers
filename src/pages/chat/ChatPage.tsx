@@ -11,29 +11,26 @@ import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import { ChatInput } from '@/widgets/chat-input'
 import { MembersPanel } from '@/widgets/members-panel/MembersPanel'
+import { LS_KEYS } from '@/shared/config/constants'
 
 // Chat page: shows history, binds realtime, input box, and members panel
 export function ChatPage() {
   const { messages, subscribeToChannel, loadHistory, sendMessage } = useMessagesStore()
   const { activeChannelId, channels } = useChannelsStore()
-
-  // Resolve current channel once per change
+  const [currentUserId, setCurrentUserId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(LS_KEYS.authUserId);
+    } catch {
+      return null;
+    }
+  });
   const selectedChannel = useMemo(
     () => channels.find((c) => c.id === activeChannelId) ?? null,
     [channels, activeChannelId],
   )
-
-  // Controlled input (message draft)
   const [messageDraft, setMessageDraft] = useState('')
-
-  // Current auth user id
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-
-  // Display names of authors by user id
   const [displayNameByUserId, setDisplayNameByUserId] = useState<Record<string, string>>({})
   const displayNameCacheRef = useRef<Record<string, string>>({})
-
-  // Scroll container for messages list
   const messagesViewportRef = useRef<HTMLDivElement | null>(null)
 
   // Fetch auth uid once
@@ -48,6 +45,29 @@ export function ChatPage() {
     const unsubscribe = subscribeToChannel(activeChannelId)
     return () => unsubscribe?.()
   }, [activeChannelId, loadHistory, subscribeToChannel])
+
+  // keep uid in sync with supabase auth
+  useEffect(() => {
+    // fast init from session
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user.id ?? null;
+      setCurrentUserId(uid);
+      try {
+        if (uid) localStorage.setItem(LS_KEYS.authUserId, uid);
+      } catch {}
+    });
+
+    // subscribe to auth changes
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      const uid = session?.user.id ?? null;
+      setCurrentUserId(uid);
+      try {
+        if (uid) localStorage.setItem(LS_KEYS.authUserId, uid);
+      } catch {}
+    });
+
+    return () => sub?.subscription?.unsubscribe();
+  }, []);
 
   // Scroll to bottom helper
   const scrollMessagesToBottom = useCallback((smooth = true) => {

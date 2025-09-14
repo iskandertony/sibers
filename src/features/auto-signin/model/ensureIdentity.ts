@@ -59,6 +59,10 @@ async function syncAliasWithProfile(profile: ProfileSnapshot) {
   const userId = data.user?.id
   if (!userId) return
 
+  try {
+    localStorage.setItem(LS_KEYS.authUserId, userId)
+  } catch {}
+
   const { error } = await supabase.from('user_aliases').upsert(
     {
       auth_user_id: userId,

@@ -5,4 +5,5 @@ export const LS_KEYS = {
   profileSnapshot: 'app.profile.snapshot',
   profileVersion: 'app.profile.version',
   lastLoginAt: 'app.lastLoginAt',
+  authUserId: 'app.auth.userId',
 } as const

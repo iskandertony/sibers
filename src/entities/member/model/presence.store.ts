@@ -3,8 +3,8 @@ import { create } from 'zustand'
 import { supabase } from '@/shared/api/supabase'
 
 type PresencePayload = {
-  userId: string // auth.uid()
-  userJsonId: number // alias from users.json
+  userId: string
+  userJsonId: number
   name: string
   avatar?: string
 }
@@ -17,7 +17,7 @@ type PresenceState = {
 export const usePresenceStore = create<PresenceState>((set, get) => ({
   online: {},
 
-  /** Subscribe to Realtime Presence for a channel and start tracking self. */
+  // Subscribe to Realtime Presence for a channel and start tracking self
   async bindPresence(channelId: string) {
     // who am I
     const { data: auth } = await supabase.auth.getUser()

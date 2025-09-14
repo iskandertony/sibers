@@ -1,6 +1,6 @@
 .wrap {
   display: grid;
-  grid-template-columns: 1fr 280px; /* chat + members */
+  grid-template-columns: 1fr 280px;
   grid-template-rows: 1fr auto;
   grid-template-areas:
     'list members'
@@ -41,7 +41,6 @@
   opacity: 0.9;
 }
 
-/* stack on small screens */
 @media (max-width: 920px) {
   .wrap {
     grid-template-columns: 1fr;

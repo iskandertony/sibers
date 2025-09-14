@@ -22,7 +22,7 @@ export const useChannelsStore = create<ChannelsState>((set, get) => ({
   activeChannelId: null,
   setActiveChannelId: (id) => set({ activeChannelId: id }),
 
-  /** Load channels where current auth user is a member. */
+   //  Load channels where current auth user is a member
   async fetchMyChannels() {
     const { data: auth } = await supabase.auth.getUser()
     const uid = auth.user?.id
@@ -52,7 +52,7 @@ export const useChannelsStore = create<ChannelsState>((set, get) => ({
     set({ channels: chs ?? [] })
   },
 
-  /** Create a channel and add current user as owner/member. */
+  // Create a channel and add current user as owner/member
   async createChannel(name: string) {
     const { data: auth } = await supabase.auth.getUser()
     const uid = auth.user?.id
