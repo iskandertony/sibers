@@ -1,0 +1,55 @@
+.formRow { display: flex; flex-direction: column; gap: 8px; }
+.hint { color: var(--text-muted); font-size: 12px; }
+
+/* attach via rootClassName */
+.darkModal {
+  /* AntD classes must stay global */
+  :global(.ant-modal-content) {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text);
+  }
+  :global(.ant-modal-header) {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  :global(.ant-modal-title) { color: var(--text); }
+  :global(.ant-modal-close) { color: var(--text-muted); }
+  :global(.ant-modal-close:hover) { color: var(--text); background: transparent; }
+
+  :global(.ant-form-item-label > label) { color: var(--text-muted); }
+
+  :global(.ant-input) {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  :global(.ant-input::placeholder) { color: var(--text-muted); }
+  :global(.ant-input:focus), :global(.ant-input-focused) {
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.20) !important;
+  }
+
+  /* buttons inside modal */
+  :global(.ant-btn-primary) {
+    background: var(--brand);
+    border-color: var(--brand);
+    box-shadow: 0 2px 10px rgba(59,130,246,0.22);
+  }
+  :global(.ant-btn-primary:hover) {
+    background: #2f6bdc;          /* darker, not white */
+    border-color: #2f6bdc;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.16);
+  }
+  :global(.ant-btn-default) {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  :global(.ant-btn-default:hover) {
+    border-color: var(--brand);
+    background: rgba(255,255,255,0.02);
+    color: var(--text);
+  }
+}

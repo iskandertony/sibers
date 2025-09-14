@@ -6,6 +6,7 @@ import { createInvite } from '../model/invites.api'
 
 import { fetchUsers } from '@/entities/user/api/fetchUsers'
 import { type UserVM, toUserVM } from '@/entities/user/lib/adapters'
+import { notify } from '@/shared/lib/notify'
 
 /** Invite dialog: local search over users.json and send invite on click. */
 export function InviteUserModal({
@@ -25,7 +26,7 @@ export function InviteUserModal({
     fetchUsers()
       .then((u) => setAll(u.map(toUserVM)))
       .catch(() => {
-        message.error('Failed to load users.json')
+        notify.error('Failed to load users.json')
       })
   }, [open])
 
@@ -49,7 +50,7 @@ export function InviteUserModal({
       onClose()
     } catch (e) {
       console.error(e)
-      message.error('Failed to send invite')
+      notify.error('Failed to send invite')
     }
   }
 

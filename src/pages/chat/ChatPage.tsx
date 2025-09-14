@@ -8,6 +8,8 @@ import { useMessagesStore } from '@/entities/message/model/messages.store'
 import { MessageBubble } from '@/entities/message/ui'
 import { fetchAliasesByAuthIds } from '@/entities/user/api/fetchUsers'
 import { supabase } from '@/shared/api/supabase'
+import { ChatInput } from '@/widgets/chat-input'
+import { notify } from '@/shared/lib/notify'
 
 export function ChatPage() {
   const { messages, subscribeToChannel, loadHistory, sendMessage } = useMessagesStore()
@@ -27,7 +29,7 @@ export function ChatPage() {
   // load history + subscribe
   useEffect(() => {
     if (!activeChannelId) return
-    loadHistory(activeChannelId).catch(() => message.error('Failed to load history'))
+    loadHistory(activeChannelId).catch(() => notify.error('Failed to load history'))
     const unsub = subscribeToChannel(activeChannelId)
     return () => unsub?.()
   }, [activeChannelId])
@@ -51,7 +53,7 @@ export function ChatPage() {
     if (!text || !activeChannelId) return
     setInput('')
     const ok = await sendMessage(activeChannelId, text)
-    if (!ok) message.error('Failed to send')
+    if (!ok) notify.error('Failed to send')
   }
 
   const data = useMemo(() => messages, [messages])
@@ -86,13 +88,7 @@ export function ChatPage() {
       </div>
 
       <div className={s.input}>
-        <Input.Search
-          placeholder="Type a message and press Enter"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onSearch={handleSend}
-          enterButton="Send"
-        />
+        <ChatInput value={input} onChange={setInput} onSend={handleSend} placeholder="Type a message" />
       </div>
     </div>
   )
