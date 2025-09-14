@@ -1,27 +1,39 @@
-import type { User } from '../model/types'
+import type { User } from "../model/types";
 
 export type UserVM = {
-  id: number
-  name: string
-  username: string
-  email: string
-  avatar: string
-  city: string
-  country: string
-  company: string
-  isFavorite: boolean
-}
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  avatar: string;
+  city: string;
+  country: string;
+  company: string;
+  isFavorite: boolean;
+};
 
-export function toUserVM(u: User): UserVM {
+// Adapt validated User → VM with light normalization
+export function toUserVM(user: User): UserVM {
+  const {
+    id,
+    name,
+    username,
+    email,
+    avatar,
+    address: { city, country },
+    company: { name: company },
+    favorite,
+  } = user;
+
   return {
-    id: u.id,
-    name: u.name,
-    username: u.username,
-    email: u.email,
-    avatar: u.avatar,
-    city: u.address.city,
-    country: u.address.country,
-    company: u.company.name,
-    isFavorite: !!u.favorite,
-  }
+    id,
+    name: name.trim(),
+    username: username.trim(),
+    email: email.trim().toLowerCase(),
+    avatar,
+    city: city.trim(),
+    country: country.trim(),
+    company: company.trim(),
+    isFavorite: Boolean(favorite),
+  };
 }

@@ -20,7 +20,6 @@ export async function fetchUsers(): Promise<User[]> {
   const data: unknown = await response.json()
   const parsed = z.array(UserSchema).safeParse(data)
   if (!parsed.success) {
-    // Keep the error short; caller shows a notify
     throw new Error('Invalid users.json schema')
   }
   return parsed.data
@@ -34,7 +33,6 @@ export async function fetchAliasesByAuthIds(authUserIds: string[]) {
   const { data, error } = await supabase.from('user_aliases').select('auth_user_id, name').in('auth_user_id', uniqueIds)
 
   if (error) {
-    // Silent fallback: return empty map
     return new Map<string, string>()
   }
 

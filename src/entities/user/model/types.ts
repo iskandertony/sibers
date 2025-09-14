@@ -1,20 +1,27 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-/** Minimal schema from users.json; extend if needed. */
-export const UserSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  username: z.string(),
-  email: z.string(),
-  avatar: z.string().url(),
-  address: z.object({
-    city: z.string(),
-    country: z.string(),
-  }),
-  company: z.object({
-    name: z.string(),
-  }),
-  favorite: z.boolean().optional(),
-})
+// helpers
+const Trimmed = z.string().transform((s) => s.trim());
+const Email = z.string().email().transform((s) => s.trim());
+const Url = z.string().url();
 
-export type User = z.infer<typeof UserSchema>
+// schema for users.json
+export const UserSchema = z
+  .object({
+    id: z.number().int(),
+    name: Trimmed,
+    username: Trimmed,
+    email: Email,
+    avatar: Url,
+    address: z.object({
+      city: Trimmed,
+      country: Trimmed,
+    }),
+    company: z.object({
+      name: Trimmed,
+    }),
+    favorite: z.boolean().optional(),
+  })
+  .passthrough();
+
+export type User = z.infer<typeof UserSchema>;
