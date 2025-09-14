@@ -107,7 +107,12 @@ export function DiscoverChannelsModal({ open, onClose }: { open: boolean; onClos
 
                 <div className={s.actions}>
                   {row.joined ? (
-                    <AppButton size="small" className="button-discover" onClick={() => handleOpen(row)} disabled={activeChannelId === row.id}>
+                    <AppButton
+                      size="small"
+                      className="button-discover"
+                      onClick={() => handleOpen(row)}
+                      disabled={activeChannelId === row.id}
+                    >
                       {activeChannelId === row.id ? 'Opened' : 'Open'}
                     </AppButton>
                   ) : (

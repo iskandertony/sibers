@@ -7,6 +7,7 @@ import { InviteUserModal } from '@/features/invite-user/ui/modal/InviteUserModal
 import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import AppButton from '@/shared/ui/app-button/AppButton'
+import UserAvatar from '@/entities/user/ui/UserAvatar'
 
 /** Shows all channel members; marks who is online using presence. */
 export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerId: string }) {
@@ -92,7 +93,7 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
           <div key={m.user_id} className={s.item}>
             <div className={s.left}>
               <div className={s.avatarWrap}>
-                <img src={m.avatar ?? ''} alt="" className={s.avatar} />
+                <UserAvatar name={m.name} src={m.avatar ?? undefined} size={28} ring />
                 <span className={`${s.dot} ${m.online ? s.online : ''}`} />
               </div>
               <div>

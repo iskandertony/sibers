@@ -1,6 +1,7 @@
 import { Avatar, Dropdown, Layout, Typography } from 'antd'
 
 import { useSessionStore } from '@/features/auto-signin/model/session.store'
+import UserAvatar from '@/entities/user/ui/UserAvatar'
 
 const { Header } = Layout
 const { Text } = Typography
@@ -15,6 +16,8 @@ export function AppHeader() {
     { key: 'reset', label: 'Reset profile', onClick: () => clearProfile() },
   ]
 
+  console.log("profile", profile)
+
   return (
     <Header style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#0b0c0e' }}>
       <Text style={{ color: '#fff', fontWeight: 600 }}>Realtime Chat</Text>
@@ -22,7 +25,7 @@ export function AppHeader() {
         {profile && (
           <Dropdown menu={{ items }} trigger={['click']}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <Avatar src={profile.avatar} />
+              <UserAvatar name={profile.name} src={profile.avatar} size="sm" />
               <Text style={{ color: '#bdbdbd' }}>{profile.name}</Text>
             </div>
           </Dropdown>

@@ -5,13 +5,13 @@ import { Button, List, Typography } from 'antd'
 import s from './Sidebar.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
 import { CreateChannelModal } from '@/features/create-channel/ui/CreateChannelModal'
+import { DiscoverChannelsModal } from '@/features/discover-channel/ui/DiscoverChannelsModal'
 import { MyInvites } from '@/features/invite-user/ui/MyInvites'
 import { InviteUserModal } from '@/features/invite-user/ui/modal/InviteUserModal'
 // поправь путь если другой
 import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import AppButton from '@/shared/ui/app-button/AppButton'
-import { DiscoverChannelsModal } from '@/features/discover-channel/ui/DiscoverChannelsModal'
 
 const { Text } = Typography
 
@@ -23,7 +23,7 @@ export function Sidebar() {
   const [inviteOpen, setInviteOpen] = useState(false) // invite modal
   const [busy, setBusy] = useState(false)
   const [myUid, setMyUid] = useState<string | null>(null)
-  const [discoverOpen, setDiscoverOpen] = useState(false); // discover
+  const [discoverOpen, setDiscoverOpen] = useState(false) // discover
 
   useEffect(() => {
     fetchMyChannels().catch(() => notify.error('Failed to load chats'))
@@ -50,9 +50,7 @@ export function Sidebar() {
         New chat
       </AppButton>
 
-      <AppButton onClick={() => setDiscoverOpen(true)}>
-        Discover
-      </AppButton>
+      <AppButton onClick={() => setDiscoverOpen(true)}>Discover</AppButton>
 
       <div className={s.headRow}>
         <Text style={{ color: 'var(--text-muted)' }}>My chats</Text>
@@ -74,10 +72,7 @@ export function Sidebar() {
 
       {/* Modals */}
       <CreateChannelModal open={modalOpen} onCancel={() => setModalOpen(false)} onCreate={handleCreate} busy={busy} />
-      <DiscoverChannelsModal
-        open={discoverOpen}
-        onClose={() => setDiscoverOpen(false)}
-      />
+      <DiscoverChannelsModal open={discoverOpen} onClose={() => setDiscoverOpen(false)} />
       {activeChannelId && (
         <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} channelId={activeChannelId} />
       )}

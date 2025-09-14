@@ -1,0 +1,59 @@
+.root {
+  /* size & shape from CSS var */
+  --size: 32px;
+
+  width: var(--size);
+  height: var(--size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px; /* default square with small rounding */
+  overflow: hidden;
+  user-select: none;
+  position: relative;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.circle {
+  border-radius: 9999px;
+}
+
+.ring {
+  /* subtle double ring, matches the app look */
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 3px var(--border);
+}
+
+/* image covers fully */
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* single letter fallback */
+.initial {
+  font-size: calc(var(--size) * 0.44);
+  color: #fff; /* good contrast on colored bg */
+  letter-spacing: 0.02em;
+  transform: translateY(1px); /* small optical alignment */
+}
+
+/* optional tiny status dot (if ever needed) */
+.dot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: #22c55e;
+}
