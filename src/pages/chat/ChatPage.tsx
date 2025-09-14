@@ -64,7 +64,6 @@ export function ChatPage() {
         <Empty className={s.empty} description="Select or create a chat" />
       </Flex>
     )
-
   }
 
   return (

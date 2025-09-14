@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import s from './MembersPanel.module.scss'
 import { type ChannelMember, listChannelMembers } from '@/entities/member/api/members.api'
 import { usePresenceStore } from '@/entities/member/model/presence.store'
+import { InviteUserModal } from '@/features/invite-user/ui/modal/InviteUserModal'
 import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import AppButton from '@/shared/ui/app-button/AppButton'
@@ -13,7 +14,7 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
   const [myUid, setMyUid] = useState<string | null>(null)
   const [members, setMembers] = useState<ChannelMember[]>([])
   const [loading, setLoading] = useState(false)
-
+  const [inviteOpen, setInviteOpen] = useState(false)
   // who am I
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setMyUid(data.user?.id ?? null))
@@ -80,6 +81,13 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
       </div>
 
       <div className={s.list}>
+        <div className={s.headBtns}>
+          {isOwner && (
+            <AppButton size="small" onClick={() => setInviteOpen(true)}>
+              Invite
+            </AppButton>
+          )}
+        </div>
         {merged.map((m) => (
           <div key={m.user_id} className={s.item}>
             <div className={s.left}>
@@ -108,6 +116,8 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
           </div>
         ))}
       </div>
+
+      <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} channelId={channelId} />
     </aside>
   )
 }

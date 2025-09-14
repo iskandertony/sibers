@@ -72,7 +72,7 @@
 }
 .online {
   background: #22c55e;
-} /* green for online */
+}
 
 .nameRow {
   display: flex;
@@ -95,6 +95,19 @@
 
 .actions {
   margin-left: auto;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.headBtns {
   display: inline-flex;
   gap: 6px;
 }
