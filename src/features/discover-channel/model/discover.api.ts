@@ -8,7 +8,7 @@ export type DiscoverRow = {
   joined: boolean
 }
 
-/** Search discoverable channels via RPC. */
+// Search discoverable channels
 export async function searchChannels(q: string, limit = 20, offset = 0) {
   const { data, error } = await supabase.rpc('list_discoverable_channels', {
     p_q: q,
@@ -19,7 +19,7 @@ export async function searchChannels(q: string, limit = 20, offset = 0) {
   return (data ?? []) as DiscoverRow[]
 }
 
-/** Join a channel by inserting self into channel_members. */
+// Join channel
 export async function joinChannel(channelId: string) {
   const { data: auth } = await supabase.auth.getUser()
   const uid = auth.user?.id

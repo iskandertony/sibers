@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Empty, Input, List, Modal, Skeleton, Typography } from 'antd'
 
-import s from './DiscoverChannelsModal.module.scss'
+import styles from './DiscoverChannelsModal.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
 import { type DiscoverRow, joinChannel, searchChannels } from '@/features/discover-channel/model/discover.api'
 import { notify } from '@/shared/lib/notify'
@@ -10,45 +10,44 @@ import AppButton from '@/shared/ui/app-button/AppButton'
 
 const { Text } = Typography
 
-/** Discover and join existing public channels. */
+// Discover and join existing public channels
 export function DiscoverChannelsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [q, setQ] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [rows, setRows] = useState<DiscoverRow[]>([])
-  const [busyId, setBusyId] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [channels, setChannels] = useState<DiscoverRow[]>([])
+  const [busyChannelId, setBusyChannelId] = useState<string | null>(null)
 
   const { fetchMyChannels, setActiveChannelId, activeChannelId } = useChannelsStore()
 
-  // debounced search
+  // Debounced search
   useEffect(() => {
     if (!open) return
-    let alive = true
-    setLoading(true)
-    const t = setTimeout(async () => {
+    let isAlive = true
+    setIsLoading(true)
+    const timer = setTimeout(async () => {
       try {
-        const data = await searchChannels(q.trim(), 30, 0)
-        if (alive) setRows(data)
+        const data = await searchChannels(query.trim(), 30, 0)
+        if (isAlive) setChannels(data)
       } catch {
-        if (alive) notify.error('Failed to load channels')
+        if (isAlive) notify.error('Failed to load channels')
       } finally {
-        if (alive) setLoading(false)
+        if (isAlive) setIsLoading(false)
       }
     }, 280)
     return () => {
-      alive = false
-      clearTimeout(t)
+      isAlive = false
+      clearTimeout(timer)
     }
-  }, [q, open])
+  }, [query, open])
 
-  // initial load on open
+  // Reset search on open
   useEffect(() => {
-    if (!open) return
-    setQ('') // reset search
+    if (open) setQuery('')
   }, [open])
 
-  async function handleJoin(row: DiscoverRow) {
+  async function handleJoinChannel(row: DiscoverRow) {
     try {
-      setBusyId(row.id)
+      setBusyChannelId(row.id)
       await joinChannel(row.id)
       notify.success('Joined the chat', row.name)
       await fetchMyChannels()
@@ -57,16 +56,18 @@ export function DiscoverChannelsModal({ open, onClose }: { open: boolean; onClos
     } catch {
       notify.error('Failed to join')
     } finally {
-      setBusyId(null)
+      setBusyChannelId(null)
     }
   }
 
-  function handleOpen(row: DiscoverRow) {
+  function handleOpenChannel(row: DiscoverRow) {
     setActiveChannelId(row.id)
     onClose()
   }
 
-  const emptyContent = <Empty description={<span style={{ color: 'var(--text-muted)' }}>No channels found</span>} />
+  const emptyContent = (
+    <Empty className={styles.empty} description={<span className={styles.emptyText}>No channels found</span>} />
+  )
 
   return (
     <Modal
@@ -74,55 +75,57 @@ export function DiscoverChannelsModal({ open, onClose }: { open: boolean; onClos
       open={open}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
-      rootClassName={s.darkModal}
+      destroyOnHidden
+      rootClassName={styles.darkModal}
       styles={{ mask: { backgroundColor: 'rgba(0,0,0,0.6)' } }}
     >
-      <div className={s.searchWrap}>
+      <div className={styles.searchWrap}>
         <Input
-          className={s.search}
+          className={styles.search}
           placeholder="Search channels by name"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           allowClear
           autoFocus
         />
       </div>
 
-      <div className={s.list}>
-        {loading ? (
+      <div className={styles.list}>
+        {isLoading ? (
           <Skeleton active paragraph={{ rows: 1 }} />
         ) : (
           <List
-            dataSource={rows}
+            dataSource={channels}
+            rowKey={(row) => row.id}
             locale={{ emptyText: emptyContent }}
-            renderItem={(row) => (
-              <List.Item className={s.item}>
-                <div>
-                  <div className={s.title}>{row.name}</div>
-                  <div className={s.meta}>
-                    {row.members_count} members • created {new Date(row.created_at).toLocaleDateString()}
-                  </div>
-                </div>
+            renderItem={(row) => {
+              const membersCount = row.members_count
+              const createdAt = new Date(row.created_at).toLocaleDateString()
+              const isOpened = activeChannelId === row.id
 
-                <div className={s.actions}>
-                  {row.joined ? (
-                    <AppButton
-                      size="small"
-                      className="button-discover"
-                      onClick={() => handleOpen(row)}
-                      disabled={activeChannelId === row.id}
-                    >
-                      {activeChannelId === row.id ? 'Opened' : 'Open'}
-                    </AppButton>
-                  ) : (
-                    <AppButton size="small" onClick={() => handleJoin(row)} loading={busyId === row.id}>
-                      Join
-                    </AppButton>
-                  )}
-                </div>
-              </List.Item>
-            )}
+              return (
+                <List.Item className={styles.item}>
+                  <div>
+                    <div className={styles.title}>{row.name}</div>
+                    <div className={styles.meta}>
+                      {membersCount} members • created {createdAt}
+                    </div>
+                  </div>
+
+                  <div className={styles.actions}>
+                    {row.joined ? (
+                      <AppButton size="small" onClick={() => handleOpenChannel(row)} disabled={isOpened}>
+                        {isOpened ? 'Opened' : 'Open'}
+                      </AppButton>
+                    ) : (
+                      <AppButton size="small" onClick={() => handleJoinChannel(row)} loading={busyChannelId === row.id}>
+                        Join
+                      </AppButton>
+                    )}
+                  </div>
+                </List.Item>
+              )
+            }}
           />
         )}
       </div>

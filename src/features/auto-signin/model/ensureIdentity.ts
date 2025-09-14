@@ -4,7 +4,7 @@ import { supabase } from '@/shared/api/supabase'
 import { LS_KEYS } from '@/shared/config/constants'
 import { randInt } from '@/shared/lib/random'
 
-/** Snapshot stored in localStorage so we don't have to fetch catalog just to render the header. */
+// Snapshot stored in localStorage so we don't have to fetch catalog just to render the header
 export type ProfileSnapshot = UserVM
 
 function readProfile(): ProfileSnapshot | null {
