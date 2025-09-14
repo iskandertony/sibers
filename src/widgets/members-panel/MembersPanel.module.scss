@@ -1,0 +1,52 @@
+.wrap {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.list {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.name {
+  color: var(--text);
+  font-weight: 600;
+}
+.meta {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.owner {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 600;
+}
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px var(--surface-2),
+    0 0 0 3px var(--border);
+}

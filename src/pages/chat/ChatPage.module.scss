@@ -1,22 +1,39 @@
 .wrap {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 280px; /* chat + members */
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "list members"
+    "input members";
   height: calc(100vh - 64px);
 }
+
 .list {
-  flex: 1 1 auto;
+  grid-area: list;
   overflow: auto;
   padding: 12px 16px;
 }
+
 .header {
   color: var(--text-muted);
   font-size: 13px;
   margin-bottom: 6px;
   user-select: none;
 }
+
 .input {
-  flex: 0 0 auto;
+  grid-area: input;
   padding: 12px;
   background: var(--bg);
   border-top: 1px solid var(--border);
+}
+
+/* stack on small screens */
+@media (max-width: 920px) {
+  .wrap {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "list"
+      "input";
+  }
 }

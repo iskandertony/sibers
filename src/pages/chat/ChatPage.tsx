@@ -10,6 +10,7 @@ import { fetchAliasesByAuthIds } from '@/entities/user/api/fetchUsers'
 import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import { ChatInput } from '@/widgets/chat-input'
+import { MembersPanel } from '@/widgets/members-panel/MembersPanel'
 
 export function ChatPage() {
   const { messages, subscribeToChannel, loadHistory, sendMessage } = useMessagesStore()
@@ -86,6 +87,11 @@ export function ChatPage() {
           }}
         />
       </div>
+
+
+      {activeChannelId && activeChannel && (
+        <MembersPanel channelId={activeChannelId} ownerId={activeChannel.owner_id} />
+      )}
 
       <div className={s.input}>
         <ChatInput value={input} onChange={setInput} onSend={handleSend} placeholder="Type a message" />
