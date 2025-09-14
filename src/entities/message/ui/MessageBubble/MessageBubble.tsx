@@ -1,6 +1,6 @@
 import clsx from 'classnames'
 
-import s from './MessageBubble.module.scss'
+import styles from './MessageBubble.module.scss'
 
 export function MessageBubble({
   authorName,
@@ -14,12 +14,12 @@ export function MessageBubble({
   isOwn?: boolean
 }) {
   return (
-    <div className={clsx(s.row, isOwn && s.own)}>
-      <div className={s.bubble}>
-        <div className={s.header}>{authorName}</div>
-        <div className={s.line}>
-          <div className={s.text}>{content}</div>
-          <div className={s.time}>{time}</div>
+    <div className={clsx(styles.row, isOwn && styles.own)}>
+      <div className={styles.bubble}>
+        <div className={styles.header}>{authorName}</div>
+        <div className={styles.line}>
+          <div className={styles.text}>{content}</div>
+          <div className={styles.time}>{time}</div>
         </div>
       </div>
     </div>

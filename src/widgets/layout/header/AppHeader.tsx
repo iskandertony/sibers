@@ -20,9 +20,7 @@ export function AppHeader() {
     notify.success('Profile reset')
   }
 
-  const menuItems: MenuProps['items'] = [
-    { key: 'reset', label: 'Reset profile', onClick: handleResetProfile },
-  ]
+  const menuItems: MenuProps['items'] = [{ key: 'reset', label: 'Reset profile', onClick: handleResetProfile }]
 
   return (
     <Header className={styles.header}>

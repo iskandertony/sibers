@@ -1,36 +1,41 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import s from './MembersPanel.module.scss'
+import styles from './MembersPanel.module.scss'
 import { type ChannelMember, listChannelMembers } from '@/entities/member/api/members.api'
 import { usePresenceStore } from '@/entities/member/model/presence.store'
-import UserAvatar from '@/entities/user/ui/UserAvatar'
+import { UserAvatar } from '@/entities/user/ui/UserAvatar'
 import { InviteUserModal } from '@/features/invite-user/ui/modal/InviteUserModal'
 import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import AppButton from '@/shared/ui/app-button/AppButton'
 
-/** Shows all channel members; marks who is online using presence. */
+// Shows all members; marks online using presence
 export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerId: string }) {
   const { online, bindPresence } = usePresenceStore()
-  const [myUid, setMyUid] = useState<string | null>(null)
+
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [members, setMembers] = useState<ChannelMember[]>([])
   const [loading, setLoading] = useState(false)
-  const [inviteOpen, setInviteOpen] = useState(false)
-  // who am I
+  const [inviteModalOpen, setInviteModalOpen] = useState(false)
+
+  const isOwner = currentUserId === ownerId
+  // Get user
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setMyUid(data.user?.id ?? null))
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null))
   }, [])
 
-  // presence bind
+  // Presence bind
   useEffect(() => {
     if (!channelId) return
-    let off: (() => void) | undefined
-    ;(async () => (off = await bindPresence(channelId)))()
-    return () => off?.()
-  }, [channelId])
+    let unsubscribe: (() => void) | undefined
+    ;(async () => {
+      unsubscribe = await bindPresence(channelId)
+    })()
+    return () => unsubscribe?.()
+  }, [channelId, bindPresence])
 
-  // load members
-  async function refreshMembers() {
+  // Load members
+  const refreshMembers = useCallback(async () => {
     try {
       setLoading(true)
       const rows = await listChannelMembers(channelId)
@@ -40,29 +45,29 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
     } finally {
       setLoading(false)
     }
-  }
-  useEffect(() => {
-    if (channelId) refreshMembers()
   }, [channelId])
 
-  // merge: mark online
-  const merged = useMemo(() => {
-    const onlineSet = new Set(Object.keys(online)) // userId (auth.uid)
-    const out = members.map((m) => ({ ...m, online: onlineSet.has(m.user_id) }))
-    // sort: online first, then owner on top of online block, then by name
-    out.sort((a: any, b: any) => {
+  useEffect(() => {
+    if (channelId) refreshMembers()
+  }, [channelId, refreshMembers])
+
+  // Merge presence and sort
+  const sortedMembers = useMemo(() => {
+    const onlineSet = new Set(Object.keys(online))
+    const withOnline = members.map((member) => ({
+      ...member,
+      online: onlineSet.has(member.user_id),
+    }))
+    return withOnline.sort((a, b) => {
       if (a.online !== b.online) return a.online ? -1 : 1
       if ((a.user_id === ownerId) !== (b.user_id === ownerId)) {
         return a.user_id === ownerId ? -1 : 1
       }
       return a.name.localeCompare(b.name)
     })
-    return out
   }, [members, online, ownerId])
 
-  const isOwner = myUid && ownerId === myUid
-
-  async function kick(userId: string) {
+  async function removeMember(userId: string) {
     try {
       await supabase.from('channel_members').delete().eq('channel_id', channelId).eq('user_id', userId)
       notify.success('Member removed')
@@ -73,43 +78,45 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
   }
 
   return (
-    <aside className={s.wrap}>
-      <div className={s.head}>
-        <span>Members ({merged.length})</span>
-        <AppButton size="small" onClick={refreshMembers} loading={loading}>
-          Refresh
-        </AppButton>
-      </div>
+    <aside className={styles.wrap}>
+      <div className={styles.head}>
+        <span>Members ({sortedMembers.length})</span>
 
-      <div className={s.list}>
-        <div className={s.headBtns}>
+        <div className={styles.headBtns}>
           {isOwner && (
-            <AppButton size="small" onClick={() => setInviteOpen(true)}>
+            <AppButton size="small" onClick={() => setInviteModalOpen(true)}>
               Invite
             </AppButton>
           )}
+          <AppButton size="small" onClick={refreshMembers} loading={loading}>
+            Refresh
+          </AppButton>
         </div>
-        {merged.map((m) => (
-          <div key={m.user_id} className={s.item}>
-            <div className={s.left}>
-              <div className={s.avatarWrap}>
-                <UserAvatar name={m.name} src={m.avatar ?? undefined} size={28} ring />
-                <span className={`${s.dot} ${m.online ? s.online : ''}`} />
+      </div>
+
+      <div className={styles.list}>
+        {sortedMembers.map((member) => (
+          <div key={member.user_id} className={styles.item}>
+            <div className={styles.left}>
+              <div className={styles.avatarWrap}>
+                <UserAvatar name={member.name} src={member.avatar ?? undefined} size={28} ring />
+                <span className={`${styles.dot} ${member.online ? styles.online : ''}`} />
               </div>
+
               <div>
-                <div className={s.nameRow}>
-                  <span className={s.name}>{myUid === m.user_id ? 'You' : m.name}</span>
-                  {m.user_id === ownerId && <span className={s.owner}>owner</span>}
+                <div className={styles.nameRow}>
+                  <span className={styles.name}>{currentUserId === member.user_id ? 'You' : member.name}</span>
+                  {member.user_id === ownerId && <span className={styles.owner}>owner</span>}
                 </div>
-                <div className={s.meta}>
-                  {m.role} • joined {new Date(m.joined_at).toLocaleDateString()}
+                <div className={styles.meta}>
+                  {member.role} • joined {new Date(member.joined_at).toLocaleDateString()}
                 </div>
               </div>
             </div>
 
-            {isOwner && m.user_id !== ownerId && (
-              <div className={s.actions}>
-                <AppButton size="small" onClick={() => kick(m.user_id)}>
+            {isOwner && member.user_id !== ownerId && (
+              <div className={styles.actions}>
+                <AppButton size="small" onClick={() => removeMember(member.user_id)}>
                   Kick
                 </AppButton>
               </div>
@@ -118,7 +125,7 @@ export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerI
         ))}
       </div>
 
-      <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} channelId={channelId} />
+      <InviteUserModal open={inviteModalOpen} onClose={() => setInviteModalOpen(false)} channelId={channelId} />
     </aside>
   )
 }

@@ -3,7 +3,6 @@
   margin: 6px 0;
 }
 
-/* my messages → right side */
 .row.own {
   width: 100%;
   justify-content: flex-end;
@@ -14,7 +13,7 @@
   color: var(--text);
   padding: 8px 12px;
   border-radius: var(--radius-lg);
-  border: none; /* no border box */
+  border: none;
   box-shadow: none;
   display: flex;
   flex-direction: column;
@@ -32,27 +31,25 @@
   color: var(--accent);
 }
 
-/* one row: text + time */
 .line {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
 
-/* wrap text after ~300px; keep time on the same row */
 .text {
   font-size: 14px;
   white-space: pre-wrap;
-  max-width: 300px; /* << your requirement */
-  overflow-wrap: anywhere; /* avoid overflow on long words/urls */
-  flex: 0 1 auto; /* allow shrinking so time stays on the line */
+  max-width: 300px;
+  overflow-wrap: anywhere;
+  flex: 0 1 auto;
 }
 
 .time {
   color: var(--text-muted);
-  font-size: 0.7em; /* ~1.5x smaller than text */
-  white-space: nowrap; /* never wrap time */
-  flex: 0 0 auto; /* don't shrink time */
+  font-size: 0.7em;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 640px) {
