@@ -1,7 +1,7 @@
 import { Dropdown, Layout, Typography } from 'antd'
 import type { MenuProps } from 'antd'
 
-import s from './AppHeader.module.scss'
+import styles from './AppHeader.module.scss'
 import UserAvatar from '@/entities/user/ui/UserAvatar'
 import { useSessionStore } from '@/features/auto-signin/model/session.store'
 import { notify } from '@/shared/lib/notify'
@@ -25,15 +25,15 @@ export function AppHeader() {
   ]
 
   return (
-    <Header className={s.header}>
-      <Text className={s.title}>Realtime Chat</Text>
+    <Header className={styles.header}>
+      <Text className={styles.title}>Realtime Chat</Text>
 
-      <div className={s.right}>
+      <div className={styles.right}>
         {profile && (
           <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-            <div className={s.trigger}>
+            <div className={styles.trigger}>
               <UserAvatar name={profile.name} src={profile.avatar} size="sm" />
-              <Text className={s.name}>{profile.name}</Text>
+              <Text className={styles.name}>{profile.name}</Text>
             </div>
           </Dropdown>
         )}

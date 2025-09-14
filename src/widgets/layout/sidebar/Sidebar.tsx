@@ -1,81 +1,95 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from "react";
+import { List, Typography } from "antd";
 
-import { Button, List, Typography } from 'antd'
+import styles from "./Sidebar.module.scss";
+import { useChannelsStore } from "@/entities/channel/model/channels.store";
+import { CreateChannelModal } from "@/features/create-channel/ui/CreateChannelModal";
+import { DiscoverChannelsModal } from "@/features/discover-channel/ui/DiscoverChannelsModal";
+import { MyInvites } from "@/features/invite-user/ui/MyInvites";
+import { notify } from "@/shared/lib/notify";
+import AppButton from "@/shared/ui/app-button/AppButton";
+import UserAvatar from '@/entities/user/ui/UserAvatar'
 
-import s from './Sidebar.module.scss'
-import { useChannelsStore } from '@/entities/channel/model/channels.store'
-import { CreateChannelModal } from '@/features/create-channel/ui/CreateChannelModal'
-import { DiscoverChannelsModal } from '@/features/discover-channel/ui/DiscoverChannelsModal'
-import { MyInvites } from '@/features/invite-user/ui/MyInvites'
-import { InviteUserModal } from '@/features/invite-user/ui/modal/InviteUserModal'
-// поправь путь если другой
-import { supabase } from '@/shared/api/supabase'
-import { notify } from '@/shared/lib/notify'
-import AppButton from '@/shared/ui/app-button/AppButton'
+const { Text } = Typography;
 
-const { Text } = Typography
-
-/** Left sidebar: "New chat", list, Invite…, My invites. */
 export function Sidebar() {
-  const { channels, fetchMyChannels, createChannel, setActiveChannelId, activeChannelId } = useChannelsStore()
+  const {
+    channels,
+    fetchMyChannels,
+    createChannel,
+    setActiveChannelId,
+    activeChannelId,
+  } = useChannelsStore();
 
-  const [modalOpen, setModalOpen] = useState(false) // create-chat modal
-  const [inviteOpen, setInviteOpen] = useState(false) // invite modal
-  const [busy, setBusy] = useState(false)
-  const [myUid, setMyUid] = useState<string | null>(null)
-  const [discoverOpen, setDiscoverOpen] = useState(false) // discover
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    fetchMyChannels().catch(() => notify.error('Failed to load chats'))
-    supabase.auth.getUser().then(({ data }) => setMyUid(data.user?.id ?? null))
-  }, [])
+    fetchMyChannels().catch(() => notify.error("Failed to load chats"));
+  }, [fetchMyChannels]);
 
-  const activeChannel = useMemo(() => channels.find((c) => c.id === activeChannelId), [channels, activeChannelId])
-
-  async function handleCreate(name: string) {
-    setBusy(true)
-    const ok = await createChannel(name)
-    setBusy(false)
+  async function handleCreateChat(name: string) {
+    setCreating(true);
+    const ok = await createChannel(name);
+    setCreating(false);
     if (ok) {
-      setModalOpen(false)
-      notify.success('Chat created', name)
+      setCreateModalOpen(false);
+      notify.success("Chat created", name);
     } else {
-      notify.error('Failed to create chat')
+      notify.error("Failed to create chat");
     }
   }
 
   return (
-    <div className={s.wrap}>
-      <AppButton className={s.newChat} onClick={() => setModalOpen(true)} loading={busy}>
-        New chat
-      </AppButton>
+    <div className={styles.wrap}>
+      <div className={styles.actions}>
+        <AppButton className={styles.newChat} onClick={() => setCreateModalOpen(true)} loading={creating}>
+          New chat
+        </AppButton>
+        <AppButton className={styles.discover} onClick={() => setDiscoverOpen(true)}>
+          Discover
+        </AppButton>
+      </div>
 
-      <AppButton onClick={() => setDiscoverOpen(true)}>Discover</AppButton>
-
-      <div className={s.headRow}>
-        <Text style={{ color: 'var(--text-muted)' }}>My chats</Text>
+      <div className={styles.headRow}>
+        <Text className={styles.muted}>My chats</Text>
       </div>
 
       <List
         size="small"
-        className={s.list}
+        className={styles.list}
         dataSource={channels}
-        locale={{ emptyText: 'No chats yet' }}
-        renderItem={(ch) => (
-          <List.Item className={s.item} onClick={() => setActiveChannelId(ch.id)}>
-            <Text style={{ color: activeChannelId === ch.id ? 'var(--brand)' : 'var(--text)' }}>{ch.name}</Text>
-          </List.Item>
-        )}
+        rowKey={(channel) => channel.id}
+        locale={{ emptyText: "No chats yet" }}
+        renderItem={(channel) => {
+          const isActive = activeChannelId === channel.id;
+          return (
+            <List.Item
+              className={`${styles.itemRow} ${isActive ? styles.itemActive : ""}`}
+              onClick={() => setActiveChannelId(channel.id)}
+            >
+              <div className={styles.itemLeft}>
+                <UserAvatar name={channel.name} size={28} />
+                <div className={styles.itemText}>
+                  <div className={styles.channelName}>{channel.name}</div>
+                  <div className={styles.channelMeta}>Open chat</div>
+                </div>
+              </div>
+            </List.Item>
+          );
+        }}
       />
 
       <MyInvites />
 
-      {/* Modals */}
-      <CreateChannelModal open={modalOpen} onCancel={() => setModalOpen(false)} onCreate={handleCreate} busy={busy} />
+      <CreateChannelModal
+        open={createModalOpen}
+        onCancel={() => setCreateModalOpen(false)}
+        onCreate={handleCreateChat}
+        busy={creating}
+      />
       <DiscoverChannelsModal open={discoverOpen} onClose={() => setDiscoverOpen(false)} />
-      {activeChannelId && (
-        <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} channelId={activeChannelId} />
-      )}
     </div>
-  )
+  );
 }

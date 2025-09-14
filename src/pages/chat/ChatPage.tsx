@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Empty, Flex, List } from 'antd'
+import { Empty, List } from 'antd'
 
-import s from './ChatPage.module.scss'
+import styles from './ChatPage.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
 import { useMessagesStore } from '@/entities/message/model/messages.store'
 import { MessageBubble } from '@/entities/message/ui'
@@ -95,16 +95,16 @@ export function ChatPage() {
 
   if (!activeChannelId) {
     return (
-      <Flex align="center" justify="center">
-        <Empty className={s.empty} description="Select or create a chat" />
-      </Flex>
+      <div className={styles.emptyPage}>
+        <Empty className={styles.empty} description="Select or create a chat" />
+      </div>
     )
   }
 
   return (
-    <div className={s.wrap}>
-      <div ref={messagesViewportRef} className={s.list}>
-        <div className={s.header}>#{selectedChannel?.name}</div>
+    <div className={styles.wrap}>
+      <div ref={messagesViewportRef} className={styles.list}>
+        <div className={styles.header}>#{selectedChannel?.name}</div>
 
         <List
           dataSource={messages}
@@ -119,7 +119,7 @@ export function ChatPage() {
             }).format(new Date(m.created_at))
 
             return (
-              <List.Item className={s.row}>
+              <List.Item className={styles.row}>
                 <MessageBubble authorName={authorName} content={m.content} time={time} isOwn={isOwnMessage} />
               </List.Item>
             )
@@ -129,7 +129,7 @@ export function ChatPage() {
 
       {selectedChannel && <MembersPanel channelId={selectedChannel.id} ownerId={selectedChannel.owner_id} />}
 
-      <div className={s.input}>
+      <div className={styles.input}>
         <ChatInput
           value={messageDraft}
           onChange={setMessageDraft}
