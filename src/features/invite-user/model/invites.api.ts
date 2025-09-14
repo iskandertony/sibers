@@ -36,9 +36,13 @@ export async function acceptInvite(inviteId: string, channelId: string) {
   })
   if (ins.error) throw ins.error
 
-  // Mark invite as accepted (either inviter or target can update)
   const upd = await supabase.from('channel_invites').update({ status: 'accepted' }).eq('id', inviteId)
   if (upd.error) throw upd.error
+}
+
+function one<T>(rel: T | T[] | null | undefined): T | null {
+  if (!rel) return null
+  return Array.isArray(rel) ? (rel[0] ?? null) : rel
 }
 
 /** Resolve current alias (users.json id) for auth.user(). */
@@ -47,9 +51,8 @@ async function getMyAliasId(): Promise<number | null> {
   const uid = auth.user?.id
   if (!uid) return null
 
-  const { data, error } = await supabase.from('user_aliases').select('user_json_id').eq('auth_user_id', uid).single()
+  const { data } = await supabase.from('user_aliases').select('user_json_id').eq('auth_user_id', uid).single()
 
-  if (error) return null
   return (data as any)?.user_json_id ?? null
 }
 
@@ -66,5 +69,12 @@ export async function listMyInvites(): Promise<InviteRow[]> {
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return (data ?? []) as InviteRow[]
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    channel_id: row.channel_id,
+    status: row.status,
+    created_at: row.created_at,
+    channels: one<{ name: string }>(row.channels), // <- массив → объект
+  }))
 }

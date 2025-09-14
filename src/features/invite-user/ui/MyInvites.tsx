@@ -6,6 +6,7 @@ import s from './MyInvites.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
 import { type InviteRow, acceptInvite, listMyInvites } from '@/features/invite-user/model/invites.api'
 import { notify } from '@/shared/lib/notify'
+import AppButton from '@/shared/ui/app-button/AppButton'
 
 export function MyInvites() {
   const [loading, setLoading] = useState(false)
@@ -45,9 +46,9 @@ export function MyInvites() {
       <div className={s.head}>
         <span>My invites</span>
         <div className={s.btns}>
-          <Button size="small" onClick={load} loading={loading}>
+          <AppButton size="small" onClick={load} loading={loading}>
             Refresh
-          </Button>
+          </AppButton>
         </div>
       </div>
 
@@ -59,9 +60,9 @@ export function MyInvites() {
           <List.Item
             className={s.item}
             actions={[
-              <Button size="small" type="primary" onClick={() => handleAccept(inv)}>
+              <AppButton size="small" onClick={() => handleAccept(inv)}>
                 Accept
-              </Button>,
+              </AppButton>,
             ]}
           >
             <div>
