@@ -1,0 +1,41 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  padding: 0 16px;
+  border-bottom: 1px solid var(--ctl-border);
+}
+
+.title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.trigger:hover {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+.name {
+  color: var(--text-muted);
+}

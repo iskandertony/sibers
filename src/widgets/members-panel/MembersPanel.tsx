@@ -3,11 +3,11 @@ import { useEffect, useMemo, useState } from 'react'
 import s from './MembersPanel.module.scss'
 import { type ChannelMember, listChannelMembers } from '@/entities/member/api/members.api'
 import { usePresenceStore } from '@/entities/member/model/presence.store'
+import UserAvatar from '@/entities/user/ui/UserAvatar'
 import { InviteUserModal } from '@/features/invite-user/ui/modal/InviteUserModal'
 import { supabase } from '@/shared/api/supabase'
 import { notify } from '@/shared/lib/notify'
 import AppButton from '@/shared/ui/app-button/AppButton'
-import UserAvatar from '@/entities/user/ui/UserAvatar'
 
 /** Shows all channel members; marks who is online using presence. */
 export function MembersPanel({ channelId, ownerId }: { channelId: string; ownerId: string }) {
