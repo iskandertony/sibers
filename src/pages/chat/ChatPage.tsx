@@ -8,8 +8,8 @@ import { useMessagesStore } from '@/entities/message/model/messages.store'
 import { MessageBubble } from '@/entities/message/ui'
 import { fetchAliasesByAuthIds } from '@/entities/user/api/fetchUsers'
 import { supabase } from '@/shared/api/supabase'
-import { ChatInput } from '@/widgets/chat-input'
 import { notify } from '@/shared/lib/notify'
+import { ChatInput } from '@/widgets/chat-input'
 
 export function ChatPage() {
   const { messages, subscribeToChannel, loadHistory, sendMessage } = useMessagesStore()

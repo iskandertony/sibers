@@ -1,5 +1,13 @@
 import { supabase } from '@/shared/api/supabase'
 
+export type InviteRow = {
+  id: string
+  channel_id: string
+  status: 'pending' | 'accepted' | 'revoked'
+  created_at: string
+  channels?: { name: string } | null
+}
+
 /** Create an invite to a users.json profile for a given channel. */
 export async function createInvite(channelId: string, targetUserJsonId: number) {
   const { data: auth } = await supabase.auth.getUser()
@@ -12,16 +20,6 @@ export async function createInvite(channelId: string, targetUserJsonId: number) 
     target_user_json_id: targetUserJsonId,
   })
   if (error) throw error
-}
-
-/** List invites addressed to the current alias (optional UI). */
-export async function listMyInvites() {
-  const { data, error } = await supabase
-    .from('channel_invites')
-    .select('id, channel_id, status, created_at')
-    .eq('status', 'pending') // RLS will show only my invites
-  if (error) throw error
-  return data ?? []
 }
 
 /** Accept an invite: self-join and mark invite accepted (optional UI). */
@@ -41,4 +39,32 @@ export async function acceptInvite(inviteId: string, channelId: string) {
   // Mark invite as accepted (either inviter or target can update)
   const upd = await supabase.from('channel_invites').update({ status: 'accepted' }).eq('id', inviteId)
   if (upd.error) throw upd.error
+}
+
+/** Resolve current alias (users.json id) for auth.user(). */
+async function getMyAliasId(): Promise<number | null> {
+  const { data: auth } = await supabase.auth.getUser()
+  const uid = auth.user?.id
+  if (!uid) return null
+
+  const { data, error } = await supabase.from('user_aliases').select('user_json_id').eq('auth_user_id', uid).single()
+
+  if (error) return null
+  return (data as any)?.user_json_id ?? null
+}
+
+/** List only invites addressed to me (pending). Includes channel name. */
+export async function listMyInvites(): Promise<InviteRow[]> {
+  const aliasId = await getMyAliasId()
+  if (aliasId == null) return []
+
+  const { data, error } = await supabase
+    .from('channel_invites')
+    .select('id, channel_id, status, created_at, channels(name)')
+    .eq('status', 'pending')
+    .eq('target_user_json_id', aliasId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []) as InviteRow[]
 }

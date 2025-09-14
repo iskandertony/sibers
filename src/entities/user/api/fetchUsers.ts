@@ -6,6 +6,18 @@ import { http } from '@/shared/api/axios'
 import { supabase } from '@/shared/api/supabase'
 import { USERS_JSON_URL } from '@/shared/config/constants'
 
+export type CatalogUser = {
+  id: number
+  name: string
+  username: string
+  email: string
+  avatar: string
+  city: string
+  country: string
+  company: string
+  isFavorite?: boolean
+}
+
 /** Load users from the provided JSON dataset and validate shape with zod. */
 export async function fetchUsers(): Promise<User[]> {
   const { data } = await http.get(USERS_JSON_URL, { responseType: 'json' })
