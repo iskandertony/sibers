@@ -1,47 +1,44 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import classNames from 'classnames'
 
-import s from './UserAvatar.module.scss'
+import styles from './UserAvatar.module.scss'
 
 export type UserAvatarProps = {
-  /** Display name used to compute the fallback letter and color */
+  // Display name used to compute the fallback letter and color
   name?: string | null
-  /** Image URL; if empty/broken, fallback to initial letter */
+  // Image URL; if empty/broken, fallback to initial letter
   src?: string | null
-  /** Size in px or preset alias */
+  // Size in px or preset alias
   size?: number | 'sm' | 'md' | 'lg'
-  /** Visual shape */
+  // Visual shape
   shape?: 'circle' | 'square'
-  /** Optional ring around avatar (like in the app) */
+  // Optional ring around avatar
   ring?: boolean
-  /** Extra classes / inline title / click handlers, etc. */
+  // Extra classes / title / click handler
   className?: string
   title?: string
   onClick?: () => void
 }
 
-/** Hash a string into a stable HSL color (pleasant saturation/lightness). */
 function colorFromString(input: string): string {
   let h = 0
-  for (let i = 0; i < input.length; i++) {
-    h = (h * 31 + input.charCodeAt(i)) >>> 0 // simple fast hash
-  }
+  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0
   h = h % 360
-  const s = 62 // saturation
-  const l = 52 // lightness (works in dark UIs)
+  const s = 62
+  const l = 52
   return `hsl(${h}deg ${s}% ${l}%)`
 }
 
-/** First non-space letter (uppercased); fallback to '?' */
+// First non-space letter (uppercased) or '?'
 function initialFrom(name?: string | null): string {
-  const t = (name ?? '').trim()
-  if (!t) return '?'
-  const m = t.match(/^\p{L}/u) // first unicode letter
-  return (m?.[0] ?? t[0]).toUpperCase()
+  const text = (name ?? '').trim()
+  if (!text) return '?'
+  const match = text.match(/^\p{L}/u)
+  return (match?.[0] ?? text[0]).toUpperCase()
 }
 
-/** Map preset size to px */
+// Map preset size to px
 function sizeToPx(size?: UserAvatarProps['size']): number {
   if (typeof size === 'number') return size
   switch (size) {
@@ -65,31 +62,44 @@ export function UserAvatar({
   title,
   onClick,
 }: UserAvatarProps) {
-  const [broken, setBroken] = useState(false)
-  const px = sizeToPx(size)
-  const letter = useMemo(() => initialFrom(name), [name])
-  const bg = useMemo(() => colorFromString(name ?? letter), [name, letter])
+  const [isImageBroken, setIsImageBroken] = useState(false)
 
-  const showImg = !!src && !broken
+  // Reset broken flag when src changes
+  useEffect(() => {
+    setIsImageBroken(false)
+  }, [src])
+
+  const sizePx = sizeToPx(size)
+  const letter = useMemo(() => initialFrom(name), [name])
+  const backgroundColor = useMemo(() => colorFromString(name ?? letter), [name, letter])
+  const showImage = !!src && !isImageBroken
+
+  // Note: custom CSS var for size
+  const style = {
+    ['--size' as any]: `${sizePx}px`,
+    background: showImage ? undefined : backgroundColor,
+  }
 
   return (
     <span
-      className={classNames(s.root, shape === 'circle' ? s.circle : null, ring && s.ring, className)}
-      style={{ ['--size' as any]: `${px}px`, background: showImg ? undefined : bg }}
+      className={classNames(styles.root, shape === 'circle' ? styles.circle : null, ring && styles.ring, className)}
+      style={style}
       title={title ?? name ?? undefined}
       onClick={onClick}
     >
-      {showImg ? (
+      {showImage ? (
         <img
-          className={s.img}
+          className={styles.img}
           alt={name ?? 'avatar'}
           src={src ?? undefined}
-          onError={() => setBroken(true)}
+          onError={() => setIsImageBroken(true)}
           loading="lazy"
+          decoding="async"
           referrerPolicy="no-referrer"
+          draggable={false}
         />
       ) : (
-        <span className={s.initial}>{letter}</span>
+        <span className={styles.initial}>{letter}</span>
       )}
     </span>
   )
