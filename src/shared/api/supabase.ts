@@ -1,13 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL as string
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-if (!url || !anon) {
-  console.warn('[Supabase] Missing URL or ANON KEY. Check your .env.local.')
+// Fail fast if env are missing
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    "[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Check your .env.local"
+  );
 }
 
-export const supabase = createClient(url, anon, {
+// Single Supabase client for the app
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -15,4 +19,4 @@ export const supabase = createClient(url, anon, {
   realtime: {
     params: { eventsPerSecond: 10 },
   },
-})
+});
