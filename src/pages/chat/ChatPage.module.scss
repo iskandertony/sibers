@@ -3,8 +3,8 @@
   grid-template-columns: 1fr 280px; /* chat + members */
   grid-template-rows: 1fr auto;
   grid-template-areas:
-    "list members"
-    "input members";
+    'list members'
+    'input members';
   height: calc(100vh - 64px);
 }
 
@@ -28,12 +28,18 @@
   border-top: 1px solid var(--border);
 }
 
+.empty :global(.ant-empty-description) {
+  color: var(--text-muted);
+  font-size: 13px;
+  opacity: 0.9;
+}
+
 /* stack on small screens */
 @media (max-width: 920px) {
   .wrap {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "list"
-      "input";
+      'list'
+      'input';
   }
 }

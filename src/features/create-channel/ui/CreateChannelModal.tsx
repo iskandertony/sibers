@@ -37,9 +37,9 @@ export function CreateChannelModal({
       cancelText="Cancel"
       destroyOnClose
       rootClassName={s.darkModal}
-      styles={{ mask: { backgroundColor: 'rgba(0,0,0,0.6)' } }} // darker backdrop
+      styles={{ mask: { backgroundColor: 'rgba(0,0,0,0.6)' } }}
     >
-      <Form form={form} layout="vertical" className={s.formRow} initialValues={{ name: '' }}>
+      <Form form={form} layout="vertical" requiredMark={false} className={s.formRow} initialValues={{ name: '' }}>
         <Form.Item
           name="name"
           label="Chat name"

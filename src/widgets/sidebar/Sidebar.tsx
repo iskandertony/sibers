@@ -62,6 +62,7 @@ export function Sidebar() {
 
       <List
         size="small"
+        className={s.list}
         dataSource={channels}
         locale={{ emptyText: 'No chats yet' }}
         renderItem={(ch) => (

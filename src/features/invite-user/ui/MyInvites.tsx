@@ -54,6 +54,7 @@ export function MyInvites() {
 
       <List
         size="small"
+        className={s.list}
         dataSource={invites}
         locale={{ emptyText: 'No invites' }}
         renderItem={(inv) => (

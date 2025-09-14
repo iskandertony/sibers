@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Empty, Flex, Input, List, message } from 'antd'
+import { Empty, Flex, List } from 'antd'
 
 import s from './ChatPage.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
@@ -22,7 +22,6 @@ export function ChatPage() {
   const [myUid, setMyUid] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
 
-  // who am I?
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setMyUid(data.user?.id ?? null))
   }, [])
@@ -61,10 +60,11 @@ export function ChatPage() {
 
   if (!activeChannelId) {
     return (
-      <Flex align="center" justify="center" style={{ height: '100%' }}>
-        <Empty description="Select or create a chat" />
+      <Flex align="center" justify="center">
+        <Empty className={s.empty} description="Select or create a chat" />
       </Flex>
     )
+
   }
 
   return (
@@ -87,7 +87,6 @@ export function ChatPage() {
           }}
         />
       </div>
-
 
       {activeChannelId && activeChannel && (
         <MembersPanel channelId={activeChannelId} ownerId={activeChannel.owner_id} />
