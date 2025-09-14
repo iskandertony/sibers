@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 
 import 'antd/dist/reset.css'
 
-import { App } from './root/App'
+import { App } from '@/pages/root/App'
 import '@/shared/lib/notify'
 import '@/shared/styles/index.scss'
 

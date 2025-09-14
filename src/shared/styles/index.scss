@@ -1,6 +1,4 @@
 @import './_theme.scss';
-
-/* Global reset-ish */
 html,
 body,
 #root {
@@ -25,14 +23,10 @@ body {
     'Segoe UI Symbol',
     sans-serif;
 }
-
-/* Layout helpers */
 .app-shell {
   max-width: 1400px;
   margin: 0 auto;
 }
-
-/* AntD dark tune */
 .ant-layout,
 .ant-layout-header,
 .ant-layout-sider,

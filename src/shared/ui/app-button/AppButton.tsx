@@ -1,38 +1,37 @@
-import { forwardRef } from 'react'
+import { forwardRef } from "react";
+import { Button, type ButtonProps } from "antd";
+import classNames from "classnames";
 
-import { Button, ButtonProps } from 'antd'
-import cx from 'classnames'
+import styles from "./AppButton.module.scss";
 
-import s from './AppButton.module.scss'
-
-type AppButtonOwnProps = {
-  variant?: 'primary' | 'success' | 'soft' | 'outline' | 'ghost'
-  fullWidth?: boolean
-  round?: boolean
-  iconOnly?: boolean
-}
-
-export type AppButtonProps = Omit<ButtonProps, 'type'> & AppButtonOwnProps
+type AppButtonProps = ButtonProps & {
+  fullWidth?: boolean;
+  round?: boolean;
+  iconOnly?: boolean;
+};
 
 export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(
-  ({ className, variant = 'soft', fullWidth, round, iconOnly, size, ...rest }, ref) => {
+  ({ className, fullWidth, round, iconOnly, size, ...rest }, ref) => {
+    const iconOnlyClass = iconOnly
+      ? size === "small"
+        ? styles.smallIconOnly
+        : styles.iconOnly
+      : undefined;
+
     return (
       <Button
-        {...rest}
         ref={ref}
-        type="default"
-        size={size}
-        className={cx(
-          s.buttonWrapper,
-          s[variant],
-          fullWidth && s.fullWidth,
-          round && s.round,
-          iconOnly && (size === 'small' ? s.smallIconOnly : s.iconOnly),
-          className,
+        {...rest}
+        className={classNames(
+          styles.buttonWrapper,
+          fullWidth && styles.fullWidth,
+          round && styles.round,
+          iconOnlyClass,
+          className
         )}
       />
-    )
-  },
-)
+    );
+  }
+);
 
-export default AppButton
+export default AppButton;
