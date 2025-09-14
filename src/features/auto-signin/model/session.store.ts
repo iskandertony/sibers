@@ -14,20 +14,29 @@ export type Profile = {
 
 type SessionState = {
   profile: Profile | null
-  setProfile: (p: Profile) => void
+  setProfile: (profile: Profile) => void
   clearProfile: () => void
+}
+
+// Remove all local storage data
+function clearStoredProfile() {
+  try {
+    localStorage.clear()
+  } catch {
+    // ignore storage errors
+  }
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
   profile: null,
-  setProfile: (p) => set({ profile: p }),
+
+  // Set current profile in memory (persisting — if needed — делаем отдельно)
+  setProfile: (profile) => set({ profile }),
+
+  // Clear profile and refresh UI to a clean state
   clearProfile: () => {
-    localStorage.removeItem('app.profile.userJsonId')
-    localStorage.removeItem('app.profile.snapshot')
-    localStorage.removeItem('app.profile.version')
-    localStorage.removeItem('app.lastLoginAt')
-    localStorage.clear()
+    clearStoredProfile()
     set({ profile: null })
-    location.reload()
+    if (typeof location !== 'undefined') location.reload()
   },
 }))
