@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/sibers/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -12,7 +13,6 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Proxy for users.json to avoid CORS issues during local dev.
       '/__users': {
         target: 'https://hr2.sibers.com',
         changeOrigin: true,

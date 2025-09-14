@@ -46,14 +46,12 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
     set({ messages: data ?? [] })
   },
 
-  /** Subscribe to new messages via Postgres Changes. */
-  // Subscribe to new messages via Postgres Changes + Broadcast fallback.
+  // Subscribe to new messages
   subscribeToChannel(channelId) {
     console.log('[realtime] subscribeToChannel ->', channelId)
 
     let pollTimer: ReturnType<typeof setInterval> | null = null
 
-    // 1) Postgres Changes
     const pg = supabase
       .channel(`messages:${channelId}`)
       .on(
@@ -73,8 +71,6 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       )
       .subscribe((status) => {
         console.log('[realtime] status', status, 'for channel', channelId)
-
-        // polling while socket down
         if (status === 'CLOSED' || status === 'TIMED_OUT') {
           if (!pollTimer) {
             console.log('[realtime] start fallback polling')
@@ -107,7 +103,6 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
         }
       })
 
-    // 2) Broadcast room for instant fanout
     const room = ensureBroadcastChannel(channelId)
     room
       .on('broadcast', { event: 'msg' }, ({ payload }) => {
@@ -132,11 +127,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
     }
   },
 
-  /** Insert a message (optimistic UI). */
-  // Insert a message (optimistic UI).
-  // Insert a message (optimistic UI + safe replace)
-  // Insert a message (optimistic UI) + broadcast after DB insert.
-  // We keep dedupe so there are no doubles if both streams deliver.
+  // Insert a message
   async sendMessage(channelId, content) {
     const { data: auth } = await supabase.auth.getUser()
     const uid = auth.user?.id
@@ -151,10 +142,8 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       optimistic: true,
     }
 
-    console.log('[send] optimistic ->', optimistic)
     set((s) => ({ messages: [...s.messages, optimistic] }))
 
-    // 1) write to DB
     const { data, error } = await supabase
       .from('messages')
       .insert({ channel_id: channelId, author_id: uid, content })
@@ -167,15 +156,12 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       return false
     }
 
-    console.log('[send] db insert ok; remove optimistic; ensure real row present', data.id)
-    // remove optimistic; if realtime INSERT/broadcast already added, skip
     set((s) => {
       const pruned = s.messages.filter((m) => m.id !== optimistic.id)
       const already = pruned.some((m) => m.id === data.id)
       return { messages: already ? pruned : [...pruned, data as Message] }
     })
 
-    // 2) broadcast the row so others see it instantly even if WAL event delays
     try {
       const room = ensureBroadcastChannel(channelId)
       const ack = await room.send({ type: 'broadcast', event: 'msg', payload: data })
