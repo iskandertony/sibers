@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
 
-import { Button, List } from 'antd'
+import { List } from 'antd'
 
-import s from './MyInvites.module.scss'
+import styles from './MyInvites.module.scss'
 import { useChannelsStore } from '@/entities/channel/model/channels.store'
 import { type InviteRow, acceptInvite, listMyInvites } from '@/features/invite-user/model/invites.api'
 import { notify } from '@/shared/lib/notify'
 import AppButton from '@/shared/ui/app-button/AppButton'
 
+// Shows pending invites and lets user join a channel
 export function MyInvites() {
   const [loading, setLoading] = useState(false)
   const [invites, setInvites] = useState<InviteRow[]>([])
   const { fetchMyChannels, setActiveChannelId } = useChannelsStore()
 
+  // Load pending invites
   async function load() {
     setLoading(true)
     try {
@@ -29,6 +31,7 @@ export function MyInvites() {
     load()
   }, [])
 
+  // Accept invite, join channel, focus it
   async function handleAccept(inv: InviteRow) {
     try {
       await acceptInvite(inv.id, inv.channel_id)
@@ -42,10 +45,10 @@ export function MyInvites() {
   }
 
   return (
-    <div className={s.section}>
-      <div className={s.head}>
+    <div className={styles.section}>
+      <div className={styles.head}>
         <span>My invites</span>
-        <div className={s.btns}>
+        <div className={styles.btns}>
           <AppButton size="small" onClick={load} loading={loading}>
             Refresh
           </AppButton>
@@ -54,12 +57,12 @@ export function MyInvites() {
 
       <List
         size="small"
-        className={s.list}
+        className={styles.list}
         dataSource={invites}
         locale={{ emptyText: 'No invites' }}
         renderItem={(inv) => (
           <List.Item
-            className={s.item}
+            className={styles.item}
             actions={[
               <AppButton size="small" onClick={() => handleAccept(inv)}>
                 Accept
@@ -67,8 +70,8 @@ export function MyInvites() {
             ]}
           >
             <div>
-              <div className={s.name}>{inv.channels?.name ?? 'Channel'}</div>
-              <div className={s.meta}>Invited • {new Date(inv.created_at).toLocaleString()}</div>
+              <div className={styles.name}>{inv.channels?.name ?? 'Channel'}</div>
+              <div className={styles.meta}>Invited • {new Date(inv.created_at).toLocaleString()}</div>
             </div>
           </List.Item>
         )}

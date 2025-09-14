@@ -1,14 +1,16 @@
 import { supabase } from '@/shared/api/supabase'
 
+export type InviteStatus = 'pending' | 'accepted' | 'revoked'
+
 export type InviteRow = {
   id: string
   channel_id: string
-  status: 'pending' | 'accepted' | 'revoked'
+  status: InviteStatus
   created_at: string
   channels?: { name: string } | null
 }
 
-/** Create an invite to a users.json profile for a given channel. */
+// Create an invite to a users.json profile
 export async function createInvite(channelId: string, targetUserJsonId: number) {
   const { data: auth } = await supabase.auth.getUser()
   const uid = auth.user?.id
@@ -22,13 +24,12 @@ export async function createInvite(channelId: string, targetUserJsonId: number) 
   if (error) throw error
 }
 
-/** Accept an invite: self-join and mark invite accepted (optional UI). */
+// Create an invite to a users.json profile
 export async function acceptInvite(inviteId: string, channelId: string) {
   const { data: auth } = await supabase.auth.getUser()
   const uid = auth.user?.id
   if (!uid) throw new Error('No auth user')
 
-  // Self-join (RLS allows this if a pending invite exists for my alias)
   const ins = await supabase.from('channel_members').insert({
     channel_id: channelId,
     user_id: uid,
@@ -45,7 +46,7 @@ function one<T>(rel: T | T[] | null | undefined): T | null {
   return Array.isArray(rel) ? (rel[0] ?? null) : rel
 }
 
-/** Resolve current alias (users.json id) for auth.user(). */
+// Resolve current auth user id
 async function getMyAliasId(): Promise<number | null> {
   const { data: auth } = await supabase.auth.getUser()
   const uid = auth.user?.id
@@ -56,7 +57,7 @@ async function getMyAliasId(): Promise<number | null> {
   return (data as any)?.user_json_id ?? null
 }
 
-/** List only invites addressed to me (pending). Includes channel name. */
+// List my pending invites with channel name
 export async function listMyInvites(): Promise<InviteRow[]> {
   const aliasId = await getMyAliasId()
   if (aliasId == null) return []
@@ -75,6 +76,6 @@ export async function listMyInvites(): Promise<InviteRow[]> {
     channel_id: row.channel_id,
     status: row.status,
     created_at: row.created_at,
-    channels: one<{ name: string }>(row.channels), // <- массив → объект
+    channels: one<{ name: string }>(row.channels),
   }))
 }

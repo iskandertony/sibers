@@ -1,22 +1,19 @@
-import { forwardRef } from "react";
-import { Button, type ButtonProps } from "antd";
-import classNames from "classnames";
+import { forwardRef } from 'react'
 
-import styles from "./AppButton.module.scss";
+import { Button, type ButtonProps } from 'antd'
+import classNames from 'classnames'
+
+import styles from './AppButton.module.scss'
 
 type AppButtonProps = ButtonProps & {
-  fullWidth?: boolean;
-  round?: boolean;
-  iconOnly?: boolean;
-};
+  fullWidth?: boolean
+  round?: boolean
+  iconOnly?: boolean
+}
 
 export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(
   ({ className, fullWidth, round, iconOnly, size, ...rest }, ref) => {
-    const iconOnlyClass = iconOnly
-      ? size === "small"
-        ? styles.smallIconOnly
-        : styles.iconOnly
-      : undefined;
+    const iconOnlyClass = iconOnly ? (size === 'small' ? styles.smallIconOnly : styles.iconOnly) : undefined
 
     return (
       <Button
@@ -27,11 +24,11 @@ export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(
           fullWidth && styles.fullWidth,
           round && styles.round,
           iconOnlyClass,
-          className
+          className,
         )}
       />
-    );
-  }
-);
+    )
+  },
+)
 
-export default AppButton;
+export default AppButton
